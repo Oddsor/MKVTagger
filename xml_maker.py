@@ -3,7 +3,7 @@ __author__ = 'Odd'
 
 from xml.etree import ElementTree as ET
 
-class Tag(object):
+class MkvTag(object):
     title = 'TITLE'
     director = 'DIRECTOR'
     actor = 'ACTOR'
@@ -31,33 +31,47 @@ def add_simple(element, tagname, string):
     stringtag.text = string
     return simple
 
-def get_xml(structure):
+def get_xml(mediainfo):
     root = ET.Element("Tags")
-    if 'collection' in structure:
+    if 'collection' in mediainfo:
         tag = add_tag(root, Target.collection)
-        add_simple(tag, Tag.title, structure['collection'])
-    if 'season' in structure:
+        add_simple(tag, MkvTag.title, mediainfo['collection'])
+    if 'season' in mediainfo:
         print('not yet implemented')
-    if 'movie' in structure:
+    if 'movie' in mediainfo:
         tag = add_tag(root, Target.movie)
-        add_simple(tag, Tag.title, structure['movie'])
-        if 'director' in structure:
-            for director in structure['director']:
-                add_simple(tag, Tag.director, director)
-        if 'actors' in structure:
-            for actor in structure['actors']:
-                actortag = add_simple(tag, Tag.actor, actor[0])
-                character = add_simple(actortag, Tag.character, actor[1])
-        if 'summary' in structure:
-            add_simple(tag, Tag.summary, structure['summary'])
-
+        add_simple(tag, MkvTag.title, mediainfo['movie'])
+        if 'director' in mediainfo:
+            for director in mediainfo['director']:
+                add_simple(tag, MkvTag.director, director)
+        if 'actors' in mediainfo:
+            for actor in mediainfo['actors']:
+                actortag = add_simple(tag, MkvTag.actor, actor[0])
+                character = add_simple(actortag, MkvTag.character, actor[1])
+        if 'summary' in mediainfo:
+            add_simple(tag, MkvTag.summary, mediainfo['summary'])
 
     tree = ET.ElementTree(root)
-    print(ET.dump(tree))
+    return ET.dump(tree)
 
+def indent(elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            indent(elem, level+1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
 if __name__ == "__main__":
-    structure = {'collection': 'Marvel movies',
+
+    mediainfos = {'collection': 'Marvel movies',
                  'movie': 'Captain America: The Winter Soldier',
                  'summary': 'After the cataclysmic events in New York with The Aven....',
                  'companies': ['Sony', 'Marvel', 'Disney'],
@@ -66,4 +80,4 @@ if __name__ == "__main__":
                  'actors': [['Chris Evans', 'Captain America'],
                             ['Sammy Jackson', 'Nick Fury']],
                  'director': ['Joe Russo', 'Anthony Russo']}
-    get_xml(structure)
+    get_xml(mediainfos)
