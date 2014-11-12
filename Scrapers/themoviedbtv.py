@@ -1,10 +1,11 @@
 import json
 import requests
+from scrapers import _tools
 
 __author__ = 'Odd'
 
-api_key = "f2fa46c4a4c90426317d7be92ac4474d"
 poster_thumbnails = "https://image.tmdb.org/t/p/w185"
+api_key = _tools.get_apikey('themoviedb')
 
 def search(tv_show):
     """movie_name (string) -> list(list(tv_show, image_thumbnail))"""

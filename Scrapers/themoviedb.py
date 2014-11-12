@@ -1,11 +1,12 @@
+import configparser
 import json
 import requests
 from MKVTag import tagtools
+from scrapers import _tools
 
 __author__ = 'Odd'
 
 
-api_key = "f2fa46c4a4c90426317d7be92ac4474d"
 poster_thumbnails_path = "http://image.tmdb.org/t/p/w185"
 poster_path = 'http://image.tmdb.org/t/p/original'
 backdrop_small_path = 'http://image.tmdb.org/t/p/w780'
@@ -13,7 +14,7 @@ backdrop_path = 'http://image.tmdb.org/t/p/original/'
 
 
 #TODO make a translation tool (mkvtag = moviedbtag), difflib isn't as cool as expected
-
+api_key = _tools.get_apikey('themoviedb')
 
 def search(movie_name):
     """movie_name (string) -> list(list(movie_name, image_thumbnail))"""

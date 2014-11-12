@@ -21,7 +21,10 @@ def find_tagname(word):
     """string -> string
     Tries to find the official tag name used in Matroska-files by checking which tag most closely resembles the word.
 
-    For instance a tag called 'Producer' will be closer to the official tag 'PRODUCED_BY' than 'EXECUTIVE_PRODUCER'"""
+    For instance a tag called 'Producer' will be closer to the official tag 'PRODUCED_BY' than 'EXECUTIVE_PRODUCER'
+
+    >>> find_tagname('name')
+    'TITLE'"""
     for newword in synonyms:
             if word.upper() in synonyms[newword]:
                 return newword
@@ -32,6 +35,5 @@ def find_tagname(word):
         return results[0]
 
 if __name__ == '__main__':
-    print(find_tagname(''))
-    #print(get_info('100402'))
-    #print(get_info('13995'))
+    import doctest
+    doctest.testmod()
