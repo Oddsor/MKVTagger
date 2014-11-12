@@ -20,8 +20,9 @@ def get_info(id):
     request = requests.get(
         'http://api.themoviedb.org/3/tv/' + id + '?api_key=' + api_key + '&append_to_response=credits')
     searchjson = json.loads(request.text)
+    print(searchjson)
 
 if __name__ == '__main__':
     print(search("Attack on Titan"))
     #print(get_info('100402'))
-    #print(get_info('13995'))
+    print(get_info('1429'))

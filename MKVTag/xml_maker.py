@@ -2,6 +2,7 @@
 __author__ = 'Odd'
 
 from xml.etree import ElementTree as ET
+from scrapers import themoviedb
 
 class MkvTag(object):
     title = 'TITLE'
@@ -35,24 +36,24 @@ def get_xml(mediainfo):
     root = ET.Element("Tags")
     if 'collection' in mediainfo:
         tag = add_tag(root, Target.collection)
-        add_simple(tag, MkvTag.title, mediainfo['collection'])
+        for item in mediainfo['collection']:
+            add_simple(tag, item, mediainfo['collection'][item])
     if 'season' in mediainfo:
         print('not yet implemented')
-    if 'movie' in mediainfo:
+    if 'item' in mediainfo:
         tag = add_tag(root, Target.movie)
-        add_simple(tag, MkvTag.title, mediainfo['movie'])
-        if 'director' in mediainfo:
-            for director in mediainfo['director']:
-                add_simple(tag, MkvTag.director, director)
-        if 'actors' in mediainfo:
-            for actor in mediainfo['actors']:
-                actortag = add_simple(tag, MkvTag.actor, actor[0])
-                character = add_simple(actortag, MkvTag.character, actor[1])
-        if 'summary' in mediainfo:
-            add_simple(tag, MkvTag.summary, mediainfo['summary'])
+        for itemtag in mediainfo['item']:
+            if itemtag == 'ACTOR':
+                for actor in mediainfo['item'][itemtag]:
+                    act = add_simple(tag, itemtag, actor[0])
+                    add_simple(act, 'CHARACTER', actor[1])
+            elif isinstance(mediainfo['item'][itemtag], list):
+                for item in mediainfo['item'][itemtag]:
+                    add_simple(tag, itemtag, item)
+            else:
+                add_simple(tag, itemtag, mediainfo['item'][itemtag])
 
-    tree = ET.ElementTree(root)
-    return ET.dump(tree)
+    return ET.tostring(root, encoding="unicode")
 
 def indent(elem, level=0):
     i = "\n" + level*"  "
@@ -71,13 +72,4 @@ def indent(elem, level=0):
 
 if __name__ == "__main__":
 
-    mediainfos = {'collection': 'Marvel movies',
-                 'movie': 'Captain America: The Winter Soldier',
-                 'summary': 'After the cataclysmic events in New York with The Aven....',
-                 'companies': ['Sony', 'Marvel', 'Disney'],
-                 'tagline': 'In heroes we trust',
-                 'releasedate': '2014-04-04',
-                 'actors': [['Chris Evans', 'Captain America'],
-                            ['Sammy Jackson', 'Nick Fury']],
-                 'director': ['Joe Russo', 'Anthony Russo']}
-    get_xml(mediainfos)
+    print(get_xml(themoviedb.get_info('100402')))

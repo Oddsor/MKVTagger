@@ -1,13 +1,18 @@
 import json
 import requests
+from MKVTag import tagtools
 
 __author__ = 'Odd'
 
 
 api_key = "f2fa46c4a4c90426317d7be92ac4474d"
-poster_thumbnails = "https://image.tmdb.org/t/p/w185"
+poster_thumbnails_path = "http://image.tmdb.org/t/p/w185"
+poster_path = 'http://image.tmdb.org/t/p/original'
+backdrop_small_path = 'http://image.tmdb.org/t/p/w780'
+backdrop_path = 'http://image.tmdb.org/t/p/original/'
 
-#tags = {'collection' 'movie' 'summary' 'companies' 'tagline' 'releasedate' 'actors': [['Chris Evans', 'Captain America'] 'director': ['Joe Russo', 'Anthony Russo']}
+
+#TODO make a translation tool (mkvtag = moviedbtag), difflib isn't as cool as expected
 
 
 def search(movie_name):
@@ -17,44 +22,57 @@ def search(movie_name):
     searchjson = json.loads(request.text)
     movie_result = list()
     for result in searchjson['results']:
-        movie_result.append([result['title'], result['release_date'][0:result['release_date'].index('-')], poster_thumbnails + result['poster_path'], result['id']])
+        movie_result.append([result['title'], result['release_date'][0:result['release_date'].index('-')], poster_thumbnails_path + result['poster_path'], result['id']])
     return movie_result
 
 def get_info(id):
     request = requests.get(
         'http://api.themoviedb.org/3/movie/' + id + '?api_key=' + api_key + '&append_to_response=credits')
     searchjson = json.loads(request.text)
-    movie_info = dict()
+    collection_info = dict()
     if searchjson['belongs_to_collection'] is not None:
-        movie_info['collection'] = searchjson['belongs_to_collection']['name']
-    movie_info['movie'] = searchjson['original_title']
-    movie_genres = list()
+        for tag in searchjson['belongs_to_collection']:
+            try:
+                collection_info[tagtools.find_tagname(tag)] = searchjson['belongs_to_collection'][tag]
+            except Exception:
+                pass
+    del searchjson['belongs_to_collection']
+    genres = list()
     for genre in searchjson['genres']:
-        movie_genres.append(genre['name'])
-    movie_info['genres'] = movie_genres
-    movie_info['summary'] = searchjson['overview']
-    movie_info['tagline'] = searchjson['tagline']
-    movie_info['releasedate'] = searchjson['release_date']
-    production_companies = list()
+        genres.append(genre['name'])
+    searchjson['genres'] = genres
+    production_comp = list()
     for company in searchjson['production_companies']:
-        production_companies.append(company['name'])
-    if production_companies:
-        movie_info['production_companies'] = production_companies
-    cast = list()
-    for actor in searchjson['credits']['cast']:
-        cast.append([actor['name'], actor['character']])
-    movie_info['actors'] = cast
-
-    crew = dict()
-    for crewjson in searchjson['credits']['crew']:
-        if crewjson['job'] in crew:
-            crew[crewjson['job']].append(crewjson['name'])
+        production_comp.append(company['name'])
+    del searchjson['production_companies']
+    del searchjson['production_countries']
+    searchjson['production_studio'] = production_comp
+    item_info = dict()
+    for crewmember in searchjson['credits']['crew']:
+        if crewmember['job'] in ['Set Decoration', 'Sculptor']:
+            pass
+        elif crewmember['job'] in searchjson:
+            searchjson[crewmember['job']].append(crewmember['name'])
         else:
-            crew[crewjson['job']] = [crewjson['name']]
-    movie_info['crew'] = crew
-    return {'item_info': movie_info}
+            searchjson[crewmember['job']] = [crewmember['name']]
+    actors = list()
+    for actor in searchjson['credits']['cast']:
+        actors.append([actor['name'], actor['character']])
+    searchjson['actor'] = actors
+    del searchjson['credits']
+    for tag in searchjson:
+        try:
+            item_info[tagtools.find_tagname(tag)] = searchjson[tag]
+        except Exception:
+            pass
+    appendages = dict()
+    appendages['cover_small.jpg'] = poster_thumbnails_path + searchjson['poster_path']
+    appendages['cover_land.jpg'] = backdrop_path + searchjson['backdrop_path']
+    appendages['cover.jpg'] = poster_path + searchjson['poster_path']
+    appendages['cover_land_small.jpg'] = backdrop_small_path + searchjson['backdrop_path']
+    return {'collection': collection_info, 'item': item_info, 'attachments': appendages}
 
 if __name__ == '__main__':
     #print(search("Captain America"))
-    #print(get_info('100402'))
-    print(get_info('13995'))
+    print(get_info('100402'))
+    #print(get_info('13995'))
