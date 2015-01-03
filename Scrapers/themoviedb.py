@@ -23,7 +23,8 @@ def search(movie_name):
     searchjson = json.loads(request.text)
     movie_result = list()
     for result in searchjson['results']:
-        movie_result.append([result['title'], result['release_date'][0:result['release_date'].index('-')], poster_thumbnails_path + result['poster_path'], result['id']])
+        movie_result.append([result['title'], result['release_date'][0:result['release_date'].index('-')],
+                             poster_thumbnails_path + result['poster_path'], result['id']])
     return movie_result
 
 def get_info(id):
