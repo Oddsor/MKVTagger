@@ -1,8 +1,7 @@
-import configparser
 import json
 import requests
 from MKVTag import tagtools
-from scrapers import _tools
+from Scrapers import _tools
 
 __author__ = 'Odd'
 
@@ -17,15 +16,20 @@ backdrop_path = 'http://image.tmdb.org/t/p/original/'
 api_key = _tools.get_apikey('themoviedb')
 
 def search(movie_name):
-    """movie_name (string) -> list(list(movie_name, image_thumbnail))"""
+    """movie_name (string) -> list(dict())"""
     request = requests.get(
         'http://api.themoviedb.org/3/search/movie?api_key=' + api_key + '&query=' + movie_name)
     searchjson = json.loads(request.text)
+    print(searchjson)
     movie_result = list()
     for result in searchjson['results']:
-        movie_result.append((result['title'], result['release_date'][0:result['release_date'].index('-')],
-                             poster_thumbnails_path + result['poster_path'], result['id']))
+        movie_result.append({'title': result['title'],
+                             'release': result['release_date'][0:result['release_date'].index('-')],
+                             'thumbnail':poster_thumbnails_path + result['poster_path']
+                             if result['poster_path'] is not None else "",
+                             'id': result['id']})
     return movie_result
+
 
 def get_info(id):
     request = requests.get(
@@ -75,6 +79,6 @@ def get_info(id):
     return {'collection': collection_info, 'item': item_info, 'attachments': appendages}
 
 if __name__ == '__main__':
-    #print(search("Captain America"))
-    print(get_info('100402'))
+    print(search("Captain America"))
+    #print(get_info('100402'))
     #print(get_info('13995'))
