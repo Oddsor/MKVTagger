@@ -98,7 +98,11 @@ class Search_dialog(tkSimpleDialog.Dialog):
             return 0
 
 
+def search_title(module=Scrapers.themoviedb, parent=None):
+    if parent is None:
+        parent = tk.Tk()
+    app = Search_dialog(parent, module)
+    return app.result
+
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = Search_dialog(root, module=Scrapers.themoviedb)
-    print(app.result) #Yay
+    print(search_title())
