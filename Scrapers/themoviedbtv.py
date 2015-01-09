@@ -1,6 +1,6 @@
 import json
 import requests
-from scrapers import _tools
+from Scrapers import _tools
 
 __author__ = 'Odd'
 

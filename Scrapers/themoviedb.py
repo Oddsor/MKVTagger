@@ -33,7 +33,7 @@ def search(movie_name):
 
 def get_info(id):
     request = requests.get(
-        'http://api.themoviedb.org/3/movie/' + id + '?api_key=' + api_key + '&append_to_response=credits')
+        'http://api.themoviedb.org/3/movie/' + str(id) + '?api_key=' + api_key + '&append_to_response=credits')
     searchjson = json.loads(request.text)
     collection_info = dict()
     if searchjson['belongs_to_collection'] is not None:
@@ -79,6 +79,6 @@ def get_info(id):
     return {'collection': collection_info, 'item': item_info, 'attachments': appendages}
 
 if __name__ == '__main__':
-    print(search("Captain America"))
-    #print(get_info('100402'))
+    #print(search("Captain America"))
+    print(get_info('100402'))
     #print(get_info('13995'))
