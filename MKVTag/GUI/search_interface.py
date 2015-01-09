@@ -4,6 +4,10 @@ import tkinter as tk
 from OddTools.GUI import Listbox
 from OddTools.GUI import tkSimpleDialog
 import Scrapers.themoviedb
+import requests
+from PIL import ImageTk
+from PIL import Image
+import io
 
 class SearchGUI(tk.Toplevel):
     def __init__(self, master=None):
@@ -46,18 +50,55 @@ class Search_dialog(tkSimpleDialog.Dialog):
             #TODO make list of scrapers and add to an optionsmenu
             None
         search_frame.pack()
-        results_frame = self.results_frame = tk.Frame()
+        self.results_frame = self.results_frame = tk.Frame(self)
+        self.results_frame.pack()
 
     def start_search(self):
-        result = self.scraper.search(self.search_text.get())
+        result = self.resultlist = self.scraper.search(self.search_text.get())
+        items = list()
+        image_list = list()
+        for item in result:
+            #TODO just in time download of image and caching
+            items.append(item['title'])
+            if "http" in item['thumbnail']:
+                request = requests.get(item['thumbnail'])
+                pilimg = Image.open(io.BytesIO(request.content))
+                image_list.append(ImageTk.PhotoImage(pilimg))
+            else:
+                image_list.append(None)
+
+        listbox = self.listbox = Listbox.Listbox(items, self.results_frame, orderable=False)
+        listbox.add_data(items)
+        listbox.grid(row=0, column=0, sticky=tk.N)
+        imagebox = tk.Frame(self.results_frame)
+        imagebox.grid(row=0,column=1)
+
+        def show_image(event):
+            if len(imagebox.winfo_children()) > 0:
+                imagebox.winfo_children()[0].destroy()
+            if image_list[listbox.get_selected()[0]] is not None:
+                label = tk.Label(imagebox, image=image_list[listbox.get_selected()[0]])
+                label.pack()
+            else:
+                label = tk.Label(imagebox, text="No image")
+                label.pack()
+
+        self.listbox.add_onclick(show_image)
 
     def apply(self):
-        self.result = "Test"
-        return "Test"
+        selected = self.listbox.get_selected()
+        for item in self.resultlist:
+            if item['title'] == self.listbox.get_items()[selected[0]]:
+                self.result = item['id']
+
+    def validate(self):
+        if self.listbox is not None and len(self.listbox.get_selected()) > 0:
+            return 1
+        else:
+            return 0
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = Search_dialog(root, module=Scrapers.themoviedb)
-    print(app) #Boo
     print(app.result) #Yay
