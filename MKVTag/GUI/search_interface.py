@@ -36,13 +36,12 @@ class _SearchDialog(tkSimpleDialog.Dialog):
     def start_search(self):
         if self.scraper is None:
             self.scraper = __import__("Scrapers.%s" % self.scraperString.get(), fromlist="Scrapers")
-            print(self.scraper.__file__)
         result = self.resultlist = self.scraper.search(self.search_text.get())
         items = list()
         image_list = list()
         for item in result:
             #TODO just in time download of image and caching
-            items.append(item['title'])
+            items.append((item['title'], item['id']))
             if "http" in item['thumbnail']:
                 request = requests.get(item['thumbnail'])
                 pilimg = Image.open(io.BytesIO(request.content))
@@ -54,7 +53,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
         listbox.add_data(items)
         listbox.grid(row=0, column=0, sticky=tk.N)
         imagebox = tk.Frame(self.results_frame)
-        imagebox.grid(row=0,column=1)
+        imagebox.grid(row=0, column=1)
 
         def show_image(event):
             if len(imagebox.winfo_children()) > 0:
@@ -70,11 +69,9 @@ class _SearchDialog(tkSimpleDialog.Dialog):
 
     def apply(self):
         selected = self.listbox.get_selected()
-        for item in self.resultlist:
-            if item['title'] == self.listbox.get_items()[selected[0]]:
-                self.result = item['id']
-                if self.return_data:
-                    self.result = self.scraper.get_info(self.result)
+        self.result = self.resultlist[selected[0]]['id']
+        if self.return_data:
+            self.result = self.scraper.get_info(self.result)
 
     def validate(self):
         if self.listbox is not None and len(self.listbox.get_selected()) > 0:
@@ -90,4 +87,4 @@ def search_title(module=None, parent=None, return_data=False):
     return app.result
 
 if __name__ == "__main__":
-    print(search_title())
+    print(Scrapers.themoviedb.get_info(search_title()))

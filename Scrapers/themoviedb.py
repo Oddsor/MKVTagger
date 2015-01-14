@@ -20,12 +20,11 @@ def search(movie_name):
     request = requests.get(
         'http://api.themoviedb.org/3/search/movie?api_key=' + api_key + '&query=' + movie_name)
     searchjson = json.loads(request.text)
-    print(searchjson)
     movie_result = list()
     for result in searchjson['results']:
         movie_result.append({'title': result['title'],
-                             'release': result['release_date'][0:result['release_date'].index('-')],
-                             'thumbnail':poster_thumbnails_path + result['poster_path']
+                             'release': "" if result['release_date'] is "" else result['release_date'][0:result['release_date'].index('-')],
+                             'thumbnail': poster_thumbnails_path + result['poster_path']
                              if result['poster_path'] is not None else "",
                              'id': result['id']})
     return movie_result
@@ -36,13 +35,14 @@ def get_info(id):
         'http://api.themoviedb.org/3/movie/' + str(id) + '?api_key=' + api_key + '&append_to_response=credits')
     searchjson = json.loads(request.text)
     collection_info = dict()
-    if searchjson['belongs_to_collection'] is not None:
+    if 'belongs_to_collection' in searchjson and searchjson['belongs_to_collection'] is not None:
         for tag in searchjson['belongs_to_collection']:
             try:
                 collection_info[tagtools.find_tagname(tag)] = searchjson['belongs_to_collection'][tag]
             except Exception:
                 pass
-    del searchjson['belongs_to_collection']
+        del searchjson['belongs_to_collection']
+
     genres = list()
     for genre in searchjson['genres']:
         genres.append(genre['name'])
@@ -72,10 +72,14 @@ def get_info(id):
         except Exception:
             pass
     appendages = dict()
-    appendages['cover_small.jpg'] = poster_thumbnails_path + searchjson['poster_path']
-    appendages['cover_land.jpg'] = backdrop_path + searchjson['backdrop_path']
-    appendages['cover.jpg'] = poster_path + searchjson['poster_path']
-    appendages['cover_land_small.jpg'] = backdrop_small_path + searchjson['backdrop_path']
+    appendages['cover_small.jpg'] = "" if searchjson['poster_path'] is None else \
+        poster_thumbnails_path + searchjson['poster_path']
+    appendages['cover_land.jpg'] = "" if searchjson['backdrop_path'] is None else \
+        backdrop_path + searchjson['backdrop_path']
+    appendages['cover.jpg'] = "" if searchjson['poster_path'] is None else \
+        poster_path + searchjson['poster_path']
+    appendages['cover_land_small.jpg'] = "" if searchjson['backdrop_path'] is None else \
+        backdrop_small_path + searchjson['backdrop_path']
     return {'collection': collection_info, 'item': item_info, 'attachments': appendages}
 
 if __name__ == '__main__':

@@ -78,5 +78,5 @@ def get_info(id, season=None, episode=None):
 
 if __name__ == '__main__':
     #print(search("Attack on Titan"))
-    print(get_info('267440', 1, 10))
+    print(get_info('267440'))
     #print(get_info('13995'))

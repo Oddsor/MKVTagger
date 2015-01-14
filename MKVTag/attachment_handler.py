@@ -1,13 +1,14 @@
 import requests
 import tempfile
 import shutil
-from scrapers import themoviedb
+from Scrapers import themoviedb
 import subprocess
+from OddTools import oddconfig
 
 __author__ = 'Odd'
 
-mkvprop_path = '"C:\\Program Files\\MKVToolNix\\mkvpropedit.exe"'
-mkvextract_path = '"C:\\Program Files\\MKVToolNix\\mkvextract.exe"'
+oddconfig.read("../settings.ini")
+mkvprop_path = oddconfig.get_setting('mkvpropedit', 'APPLICATIONS')
 
 def download_file(name, dir, url):
     response = requests.get(url, stream=True)

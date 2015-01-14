@@ -2,7 +2,7 @@
 __author__ = 'Odd'
 
 from xml.etree import ElementTree as ET
-from scrapers import themoviedb
+from Scrapers import themoviedb
 
 class MkvTag(object):
     title = 'TITLE'
