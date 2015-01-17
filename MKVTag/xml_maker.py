@@ -2,7 +2,7 @@
 __author__ = 'Odd'
 
 from xml.etree import ElementTree as ET
-from Scrapers import themoviedb
+from Scrapers import thetvdb
 
 class MkvTag(object):
     title = 'TITLE'
@@ -19,7 +19,7 @@ class Target(object):
 
 def add_tag(root, targetnumber):
     tag = ET.SubElement(root, "Tag")
-    target = ET.SubElement(tag, "Target")
+    target = ET.SubElement(tag, "Targets")
     target_type = ET.SubElement(target, "TargetTypeValue")
     target_type.text = targetnumber
     return tag
@@ -32,14 +32,22 @@ def add_simple(element, tagname, string):
     stringtag.text = string
     return simple
 
+
 def get_xml(mediainfo):
+    print(mediainfo)
     root = ET.Element("Tags")
     if 'collection' in mediainfo:
         tag = add_tag(root, Target.collection)
         for item in mediainfo['collection']:
-            add_simple(tag, item, mediainfo['collection'][item])
+            if isinstance(mediainfo['collection'][item], list):
+                for item in mediainfo['collection'][item]:
+                    add_simple(tag, item, item)
+            else:
+                add_simple(tag, item, mediainfo['collection'][item])
     if 'season' in mediainfo:
-        print('not yet implemented')
+        tag = add_tag(root, Target.season)
+        for item in mediainfo['season']:
+            add_simple(tag, item, mediainfo['season'][item])
     if 'item' in mediainfo:
         tag = add_tag(root, Target.movie)
         for itemtag in mediainfo['item']:
@@ -52,7 +60,6 @@ def get_xml(mediainfo):
                     add_simple(tag, itemtag, item)
             else:
                 add_simple(tag, itemtag, mediainfo['item'][itemtag])
-
     return ET.tostring(root, encoding="unicode")
 
 def indent(elem, level=0):
@@ -72,4 +79,4 @@ def indent(elem, level=0):
 
 if __name__ == "__main__":
 
-    print(get_xml(themoviedb.get_info('100402')))
+    print(get_xml(thetvdb.get_info('251085', 1, 10)))

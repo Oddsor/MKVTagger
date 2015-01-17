@@ -37,6 +37,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
         if self.scraper is None:
             self.scraper = __import__("Scrapers.%s" % self.scraperString.get(), fromlist="Scrapers")
         result = self.resultlist = self.scraper.search(self.search_text.get())
+        print(result)
         items = list()
         image_list = list()
         for item in result:
@@ -69,7 +70,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
 
     def apply(self):
         selected = self.listbox.get_selected()
-        self.result = self.resultlist[selected[0]]['id']
+        self.result = self.title_id = self.resultlist[selected[0]]['id']
         if self.return_data:
             self.result = self.scraper.get_info(self.result)
 
@@ -80,11 +81,14 @@ class _SearchDialog(tkSimpleDialog.Dialog):
             return 0
 
 
-def search_title(module=None, parent=None, return_data=False):
+def search_title(module=None, parent=None, return_data=False, scraper_module=False):
     if parent is None:
         parent = tk.Tk()
     app = _SearchDialog(parent, module=module, return_data=return_data)
-    return app.result
+    if not scraper_module:
+        return app.result
+    else:
+        return app.result, app.scraper, app.title_id
 
 if __name__ == "__main__":
     print(Scrapers.themoviedb.get_info(search_title()))

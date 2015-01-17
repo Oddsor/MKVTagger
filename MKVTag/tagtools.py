@@ -24,7 +24,8 @@ def find_tagname(word):
     For instance a tag called 'Producer' will be closer to the official tag 'PRODUCED_BY' than 'EXECUTIVE_PRODUCER'
 
     >>> find_tagname('name')
-    'TITLE'"""
+    'TITLE'
+    """
     for newword in synonyms:
             if word.upper() in synonyms[newword]:
                 return newword
