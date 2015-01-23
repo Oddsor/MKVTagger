@@ -9,34 +9,49 @@ cover_path = "http://thetvdb.com/banners/"
 
 collection_cache = dict()
 
+
 def search(tv_show):
     request = requests.get('http://thetvdb.com/api/GetSeries.php?seriesname=' + tv_show)
     root = ET.fromstring(request.text)
     results = list()
+    print(request.text)
     for series in root.findall('Series'):
-        results.append([series.find('SeriesName').text, cover_path + series.find('banner').text, series.find('id').text])
+        results.append({'title': series.find('SeriesName').text, 'thumbnail': cover_path + series.find('banner').text,
+                        'id': series.find('id').text,
+                        'release': "" if series.find('FirstAired').text is "" else
+                        series.find('FirstAired').text[0:series.find('FirstAired').text.index('-')]})
     return results
 
 
-def get_info(id, season=None, episode=None):
+def get_info(title_id, season=None, episode=None):
     appendages = dict()
-    if id not in collection_cache:
-        request = requests.get("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(id) + "/")
+    if title_id not in collection_cache:
+        request = requests.get("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id) + "/")
+        collection_cache[title_id] = request.text
         root = ET.fromstring(request.text)
-        series = root.findall('Series')[0]
-        collection_info = dict()
-        genres = list()
-        for item in str(series.find('Genre').text).split('|'):
-            if len(item) != 0:
-                genres.append(item)
-        collection_info['GENRE'] = genres
-        collection_info['TITLE'] = series.find('SeriesName').text
-        collection_info['SUMMARY'] = series.find('Overview').text
+    else:
+        root = ET.fromstring(collection_cache[title_id])
+    series = root.findall('Series')[0]
+    collection_info = dict()
+    genres = list()
+    for item in str(series.find('Genre').text).split('|'):
+        if len(item) != 0:
+            genres.append(item)
+    collection_info['GENRE'] = genres
+    collection_info['TITLE'] = series.find('SeriesName').text
+    collection_info['SUMMARY'] = series.find('Overview').text
+    appendages['cover_land.jpg'] = cover_path + series.find('fanart').text
+    appendages['cover.jpg'] = cover_path + series.find('poster').text
+
     season_info = dict()
     item_info = dict()
+
     if season is not None and episode is not None:
-        request = requests.get("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(id)
+        request = requests.get("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
                                + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
+        print("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
+                               + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
+        print(request.text)
         root = ET.fromstring(request.text)
         episode = root.findall('Episode')[0]
         item_info['TITLE'] = episode.find('EpisodeName').text
@@ -68,15 +83,11 @@ def get_info(id, season=None, episode=None):
     #         item_info[tagtools.find_tagname(tag)] = searchjson[tag]
     #     except Exception:
     #         pass
-    # appendages = dict()
-    # appendages['cover_small.jpg'] = poster_thumbnails_path + searchjson['poster_path']
-    # appendages['cover_land.jpg'] = backdrop_path + searchjson['backdrop_path']
-    # appendages['cover.jpg'] = poster_path + searchjson['poster_path']
-    # appendages['cover_land_small.jpg'] = backdrop_small_path + searchjson['backdrop_path']
+
     return {'collection': collection_info, 'season': season_info, 'item': item_info, 'attachments': appendages}
 
 
 if __name__ == '__main__':
     #print(search("Attack on Titan"))
-    print(get_info('267440', 1, 10))
+    print(get_info('251085', 1, 10))
     #print(get_info('13995'))
