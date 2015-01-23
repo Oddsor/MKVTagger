@@ -18,6 +18,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
         tkSimpleDialog.Dialog.__init__(self, parent, title)
 
     def body(self, master):
+        self.ok_button.config(state=tk.DISABLED)
         search_frame = tk.Frame(self)
         entry = self.search_text = tk.Entry(search_frame)
         entry.grid(row=0, column=0)
@@ -67,6 +68,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
                 label.pack()
 
         self.listbox.add_onclick(show_image)
+        self.ok_button.config(state=tk.ACTIVE)
 
     def apply(self):
         selected = self.listbox.get_selected()
