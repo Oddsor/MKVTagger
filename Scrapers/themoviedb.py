@@ -20,6 +20,8 @@ def search(movie_name):
     request = requests.get(
         'http://api.themoviedb.org/3/search/movie?api_key=' + api_key + '&query=' + movie_name)
     searchjson = json.loads(request.text)
+    if "status_code" in searchjson and searchjson['status_code'] == 6:
+        raise Exception("Wrong search: " + movie_name)
     movie_result = list()
     for result in searchjson['results']:
         movie_result.append({'title': result['title'],
@@ -34,6 +36,8 @@ def get_info(id):
     request = requests.get(
         'http://api.themoviedb.org/3/movie/' + str(id) + '?api_key=' + api_key + '&append_to_response=credits')
     searchjson = json.loads(request.text)
+    if "status_code" in searchjson and searchjson['status_code'] == 6:
+        raise Exception("Wrong search: " + id)
     collection_info = dict()
     if 'belongs_to_collection' in searchjson and searchjson['belongs_to_collection'] is not None:
         for tag in searchjson['belongs_to_collection']:

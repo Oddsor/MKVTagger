@@ -35,10 +35,11 @@ class _SearchDialog(tkSimpleDialog.Dialog):
         self.results_frame.pack()
 
     def start_search(self):
+        for widget in self.results_frame.winfo_children():
+            widget.destroy()
         if self.scraper is None:
             self.scraper = __import__("Scrapers.%s" % self.scraperString.get(), fromlist="Scrapers")
         result = self.resultlist = self.scraper.search(self.search_text.get())
-        print(result)
         items = list()
         image_list = list()
         for item in result:
