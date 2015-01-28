@@ -1,7 +1,7 @@
-import requests
 from xml.etree import ElementTree as ET
-import MKVTag.tagtools
-import Scrapers._tools
+
+import requests
+
 
 __author__ = 'Odd'
 
@@ -26,7 +26,7 @@ def search(tv_show):
 def get_info(title_id, season=None, episode=None):
     appendages = dict()
     if title_id not in collection_cache:
-        request = requests.get("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id) + "/")
+        request = requests.get("http://thetvdb.com/api/" + MKVTag.scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id) + "/")
         collection_cache[title_id] = request.text
         root = ET.fromstring(request.text)
     else:
@@ -47,9 +47,9 @@ def get_info(title_id, season=None, episode=None):
     item_info = dict()
 
     if season is not None and episode is not None:
-        request = requests.get("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
+        request = requests.get("http://thetvdb.com/api/" + MKVTag.scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
                                + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
-        print("http://thetvdb.com/api/" + Scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
+        print("http://thetvdb.com/api/" + MKVTag.scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
                                + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
         print(request.text)
         root = ET.fromstring(request.text)

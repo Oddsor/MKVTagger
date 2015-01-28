@@ -1,10 +1,11 @@
-import requests
 import tempfile
 import shutil
-from Scrapers import themoviedb
 import subprocess
+
+import requests
+
 from OddTools import oddconfig
-import os
+
 
 __author__ = 'Odd'
 

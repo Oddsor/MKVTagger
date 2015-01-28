@@ -1,6 +1,9 @@
 import json
+
 import requests
-from Scrapers import _tools
+
+from MKVTag.scrapers import _tools
+
 
 __author__ = 'Odd'
 

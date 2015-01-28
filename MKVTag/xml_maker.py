@@ -1,8 +1,9 @@
+from MKVTag.scrapers.metadata import thetvdb
 
 __author__ = 'Odd'
 
 from xml.etree import ElementTree as ET
-from Scrapers import thetvdb
+
 
 class MkvTag(object):
     title = 'TITLE'

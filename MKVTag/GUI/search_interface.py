@@ -1,14 +1,16 @@
 __author__ = 'Odd'
 
 import tkinter as tk
-import OddTools.modulelist
-from OddTools.GUI import Listbox
-from OddTools.GUI import tkSimpleDialog
-import Scrapers.themoviedb
+import io
+
 import requests
 from PIL import ImageTk
 from PIL import Image
-import io
+
+import OddTools.modulelist
+from OddTools.GUI import Listbox
+from OddTools.GUI import tkSimpleDialog
+import MKVTag.scrapers.metadata.themoviedb
 
 
 class _SearchDialog(tkSimpleDialog.Dialog):
@@ -25,7 +27,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
         search_button = tk.Button(search_frame, text="Search", command=self.start_search)
         search_button.grid(row=0, column=1)
         if self.scraper is None:
-            module_list = OddTools.modulelist.get_modulenames(Scrapers)
+            module_list = OddTools.modulelist.get_modulenames(MKVTag.scrapers.metadata)
             self.scraperString = tk.StringVar()
             self.scraperString.set(module_list[0])
             options = tk.OptionMenu(search_frame, self.scraperString, *module_list)
@@ -38,7 +40,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
         for widget in self.results_frame.winfo_children():
             widget.destroy()
         if self.scraper is None:
-            self.scraper = __import__("Scrapers.%s" % self.scraperString.get(), fromlist="Scrapers")
+            self.scraper = __import__("scrapers.%s" % self.scraperString.get(), fromlist="scrapers")
         result = self.resultlist = self.scraper.search(self.search_text.get())
         items = list()
         image_list = list()
@@ -94,4 +96,4 @@ def search_title(module=None, parent=None, return_data=False, scraper_module=Fal
         return app.result, app.scraper, app.title_id
 
 if __name__ == "__main__":
-    print(Scrapers.themoviedb.get_info(search_title()))
+    print(MKVTag.scrapers.metadata.themoviedb.get_info(search_title()))
