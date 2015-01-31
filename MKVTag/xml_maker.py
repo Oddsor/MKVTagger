@@ -39,12 +39,12 @@ def get_xml(mediainfo):
     root = ET.Element("Tags")
     if 'collection' in mediainfo:
         tag = add_tag(root, Target.collection)
-        for item in mediainfo['collection']:
-            if isinstance(mediainfo['collection'][item], list):
+        for itemtag in mediainfo['collection']:
+            if isinstance(mediainfo['collection'][itemtag], list):
                 for item in mediainfo['collection'][item]:
-                    add_simple(tag, item, item)
+                    add_simple(tag, itemtag, item)
             else:
-                add_simple(tag, item, mediainfo['collection'][item])
+                add_simple(tag, itemtag, mediainfo['collection'][itemtag])
     if 'season' in mediainfo:
         tag = add_tag(root, Target.season)
         for item in mediainfo['season']:
