@@ -15,12 +15,12 @@ def search(tv_show):
     request = requests.get('http://thetvdb.com/api/GetSeries.php?seriesname=' + tv_show)
     root = ET.fromstring(request.text)
     results = list()
-    print(request.text)
     for series in root.findall('Series'):
-        results.append({'title': series.find('SeriesName').text, 'thumbnail': cover_path + series.find('banner').text,
-                        'id': series.find('id').text,
-                        'release': "" if series.find('FirstAired').text is "" else
-                        series.find('FirstAired').text[0:series.find('FirstAired').text.index('-')]})
+        print(series.find('banner'))
+        results.append({'title': series.find('SeriesName').text, 'thumbnail': "" if series.find('banner') is None else
+                cover_path + series.find('banner').text, 'id': series.find('id').text,
+                'release': "" if series.find('FirstAired') is None else
+                series.find('FirstAired').text[0:series.find('FirstAired').text.index('-')]})
     return results
 
 
@@ -50,9 +50,6 @@ def get_info(title_id, season=None, episode=None):
     if season is not None and episode is not None:
         request = requests.get("http://thetvdb.com/api/" + _tools.get_apikey("thetvdb") + "/series/" + str(title_id)
                                + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
-        print("http://thetvdb.com/api/" + _tools.get_apikey("thetvdb") + "/series/" + str(title_id)
-                               + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
-        print(request.text)
         root = ET.fromstring(request.text)
         episode = root.findall('Episode')[0]
         item_info['TITLE'] = episode.find('EpisodeName').text
