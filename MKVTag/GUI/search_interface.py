@@ -40,7 +40,7 @@ class _SearchDialog(tkSimpleDialog.Dialog):
         for widget in self.results_frame.winfo_children():
             widget.destroy()
         if self.scraper is None:
-            self.scraper = __import__("scrapers.%s" % self.scraperString.get(), fromlist="scrapers")
+            self.scraper = __import__("MKVTag.scrapers.metadata.%s" % self.scraperString.get(), fromlist="scrapers")
         result = self.resultlist = self.scraper.search(self.search_text.get())
         items = list()
         image_list = list()
