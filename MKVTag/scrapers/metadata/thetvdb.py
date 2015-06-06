@@ -1,6 +1,7 @@
 from xml.etree import ElementTree as ET
 
 import requests
+from MKVTag.scrapers import _tools
 
 
 __author__ = 'Odd'
@@ -17,16 +18,17 @@ def search(tv_show):
     for series in root.findall('Series'):
         print(series.find('banner'))
         results.append({'title': series.find('SeriesName').text, 'thumbnail': "" if series.find('banner') is None else
-                cover_path + series.find('banner').text, 'id': series.find('id').text,
-                'release': "" if series.find('FirstAired') is None else
-                series.find('FirstAired').text[0:series.find('FirstAired').text.index('-')]})
+                        cover_path + series.find('banner').text, 'id': series.find('id').text,
+                        'release': "" if series.find('FirstAired') is None else
+                        series.find('FirstAired').text[0:series.find('FirstAired').text.index('-')]})
     return results
 
 
 def get_info(title_id, season=None, episode=None):
     appendages = dict()
     if title_id not in collection_cache:
-        request = requests.get("http://thetvdb.com/api/" + MKVTag.scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id) + "/")
+        request = requests.get(
+            "http://thetvdb.com/api/" + _tools.get_apikey("thetvdb") + "/series/" + str(title_id) + "/")
         collection_cache[title_id] = request.text
         root = ET.fromstring(request.text)
     else:
@@ -47,10 +49,10 @@ def get_info(title_id, season=None, episode=None):
     item_info = dict()
 
     if season is not None and episode is not None:
-        request = requests.get("http://thetvdb.com/api/" + MKVTag.scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
+        request = requests.get("http://thetvdb.com/api/" + _tools.get_apikey("thetvdb") + "/series/" + str(title_id)
                                + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
-        print("http://thetvdb.com/api/" + MKVTag.scrapers._tools.get_apikey("thetvdb") + "/series/" + str(title_id)
-                               + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
+        print("http://thetvdb.com/api/" + _tools.get_apikey("thetvdb") + "/series/" + str(title_id)
+              + "/default/" + str(season) + "/" + str(episode) + "/en.xml")
         print(request.text)
         root = ET.fromstring(request.text)
         episode = root.findall('Episode')[0]
@@ -88,6 +90,6 @@ def get_info(title_id, season=None, episode=None):
 
 
 if __name__ == '__main__':
-    #print(search("Attack on Titan"))
+    # print(search("Attack on Titan"))
     print(get_info('251085', 1, 10))
-    #print(get_info('13995'))
+    # print(get_info('13995'))
